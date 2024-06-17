@@ -1,0 +1,29 @@
+{
+    "name": "speniti/filament-calendar",
+    "description": "FullCalendar.js integration for Filament panels",
+    "type": "library",
+    "license": "ISC",
+    "autoload": {
+        "psr-4": {
+            "Peniti\\FilamentCalendar\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Simone Peniti",
+            "email": "simone@peniti.it"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "filament/support": "^3.0",
+        "spatie/opening-hours": "^2.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Peniti\\FilamentCalendar\\FilamentCalendarServiceProvider"
+            ]
+        }
+    }
+}

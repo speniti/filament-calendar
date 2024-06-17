@@ -1,0 +1,188 @@
+.static {
+  position: static;
+}
+
+:root {
+  --fc-border-color: #e4e4e7;
+  --fc-event-border-color: transparent;
+  --fc-button-active-bg-color: #d97706;
+  --fc-button-active-dark-bg-color: #fbbf24;
+  --fc-button-active-hover-bg-color: #d97706;
+  --fc-button-active-dark-hover-bg-color: #fbbf24;
+  --fc-button-active-border-color: transparent;
+  --fc-button-active-focus-ring-color: rgb(245 158 11 / 50%);
+  --fc-button-active-dark-focus-ring-color: rgb(251 191 36 / 50%);
+  --fc-button-active-text-color: #fff;
+  --fc-button-bg-color: #fff;
+  --fc-button-border-color: rgb(9 9 11 / 10%);
+  --fc-button-hover-bg-color: #fafafa;
+  --fc-button-hover-border-color: rgb(9 9 11 / 10%);
+  --fc-button-text-color: #09090b;
+  --fc-google-event-bg-color: rgb(239 68 68 / 10%);
+  --fc-google-event-hover-bg-color: rgb(239 68 68 / 20%);
+  --fc-google-event-text-color: #09090b;
+  --fc-google-event-border-color: rgb(220 38 38 / 10%);
+  --fc-google-event-dark-bg-color: rgb(248 113 113 / 5%);
+  --fc-google-event-dark-hover-bg-color: rgb(255 255 255 / 10%);
+  --fc-google-event-dark-text-color: #fff;
+  --fc-google-event-dark-border-color: rgb(220 38 38 / 10%);
+  --fc-non-business-color: rgb(212 212 216 / 25%);
+  --fc-now-indicator-color: #ef4444;
+  --fc-page-bg-color: transparent;
+}
+
+.fc .fc-button {
+  border-radius: 0.5rem;
+}
+
+.fc-button-primary:focus {
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  --tw-ring-color: rgb(3 7 18 / 0.1);
+}
+
+:is(.dark .fc-button-primary) {
+  background-color: rgb(255 255 255 / 0.05);
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+:is(.dark .fc-button-primary:hover) {
+  background-color: rgb(255 255 255 / 0.1);
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+:is(.dark .fc-button-primary:focus) {
+  --tw-ring-color: rgb(255 255 255 / 0.2);
+}
+
+.fc-button-primary {
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  font-weight: 600 !important;
+}
+
+.fc-button-primary:focus {
+  --tw-shadow: 0 0 #0000 !important;
+  --tw-shadow-colored: 0 0 #0000 !important;
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
+}
+
+.fc-button-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+:is(.dark .fc-button-primary:disabled) {
+  background-color: rgb(255 255 255 / 0.05);
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+:is(.dark .fc-button-primary:disabled:hover) {
+  background-color: rgb(255 255 255 / 0.1);
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+.fc-button-active {
+  --tw-ring-color: var(--fc-button-active-focus-ring-color) !important;
+  color: var(--fc-button-active-text-color) !important;
+}
+
+.fc-button-active:focus {
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+:is(.dark .fc-button-active) {
+  --tw-ring-color: var(--fc-button-active-dark-focus-ring-color) !important;
+  background-color: var(--fc-button-active-dark-bg-color) !important;
+}
+
+:is(.dark .fc-button-active):hover {
+  background-color: var(--fc-button-active-dark-hover-bg-color) !important;
+}
+
+.fc-button-active:hover {
+  background-color: var(--fc-button-active-hover-bg-color) !important;
+}
+
+.fc-col-header-cell-cushion,
+.fc-timegrid-axis-cushion,
+.fc-timegrid-slot-label-cushion {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.fc-event-secondary,
+.fc-event-secondary > .fc-event-main {
+  border-color: rgb(9 9 11 / 0.1) !important;
+  --tw-bg-opacity: 1 !important;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity)) !important;
+  --tw-text-opacity: 1 !important;
+  color: rgb(9 9 11 / var(--tw-text-opacity)) !important;
+}
+
+.fc-event-secondary:hover,
+.fc-event-secondary > .fc-event-main:hover {
+  --tw-bg-opacity: 1 !important;
+  background-color: rgb(250 250 250 / var(--tw-bg-opacity)) !important;
+}
+
+:is(.dark .fc-event-secondary),:is(.dark 
+.fc-event-secondary > .fc-event-main) {
+  background-color: rgb(255 255 255 / 0.05) !important;
+}
+
+:is(.dark .fc-event-secondary:hover),:is(.dark 
+.fc-event-secondary > .fc-event-main:hover) {
+  background-color: rgb(255 255 255 / 0.1) !important;
+}
+
+.fc-event-google,
+.fc-event-google > .fc-event-main {
+  background-color: var(--fc-google-event-bg-color);
+  color: var(--fc-google-event-text-color);
+  border-color: var(--fc-google-event-border-color);
+  pointer-events: none !important;
+}
+
+:is(.dark .fc-event-google),:is(.dark 
+.fc-event-google > .fc-event-main) {
+  background-color: var(--fc-google-event-dark-bg-color) !important;
+  color: var(--fc-google-event-dark-text-color) !important;
+  border-color: var(--fc-google-event-dark-border-color) !important;
+}
+
+:is(.dark .fc-event-google):hover,:is(.dark 
+.fc-event-google > .fc-event-main):hover {
+  background-color: var(--fc-google-event-dark-hover-bg-color) !important;
+}
+
+.fc-event-google:hover {
+  background-color: var(--fc-google-event-hover-bg-color);
+}
+
+.fc-event-time,
+.fc-event-title {
+  font-weight: 600;
+}
+
+:is(.dark .fc-theme-standard td),:is(.dark 
+.fc-theme-standard th),:is(.dark 
+.fc-theme-standard .fc-scrollgrid) {
+  border-color: rgb(228 228 231 / 0.1);
+}
+
+.fc-toolbar-title {
+  font-size: 1.125rem !important;
+  line-height: 1.75rem !important;
+  text-transform: capitalize !important;
+}
