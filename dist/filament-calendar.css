@@ -2,6 +2,10 @@
   position: static;
 }
 
+.order-last {
+  order: 9999;
+}
+
 :root {
   --fc-border-color: #e4e4e7;
   --fc-event-border-color: transparent;

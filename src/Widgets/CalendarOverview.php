@@ -3,16 +3,28 @@
 namespace Peniti\FilamentCalendar\Widgets;
 
 use Carbon\Carbon;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Arr;
+use Peniti\FilamentCalendar\Widgets\Concerns\InteractsWithActions as InteractsWithCalendarActions;
+use Peniti\FilamentCalendar\Widgets\Concerns\InteractsWithResource;
 use Spatie\OpeningHours\Day;
 use Spatie\OpeningHours\OpeningHours;
 use Spatie\OpeningHours\OpeningHoursForDay;
 use Spatie\OpeningHours\Time;
 use Spatie\OpeningHours\TimeRange;
 
-class CalendarOverview extends Widget
+class CalendarOverview extends Widget implements HasActions, HasForms
 {
+    use InteractsWithActions;
+    use InteractsWithCalendarActions;
+    use InteractsWithForms;
+    use InteractsWithResource;
+
     protected static string $view = 'filament-calendar::widgets.calendar-overview';
 
     protected int|string|array $columnSpan = 'full';
@@ -37,7 +49,7 @@ class CalendarOverview extends Widget
 
     public function getAllDaySlot(): bool
     {
-        return false;
+        return true;
     }
 
     public function getBusinessHours(): ?OpeningHours
@@ -55,9 +67,25 @@ class CalendarOverview extends Widget
         return '00:15:00';
     }
 
-    public function edit(int|string $id, string $start, string $end): void
+    public function select(int|string $key): void
     {
-        //
+        $this->resolveRecord($key);
+
+        $this->mountAction($this->hasViewAction() ? 'view' : 'edit');
+    }
+
+    public function update(int|string $id, string $start, ?string $end, bool $allDay): void
+    {
+        $start = Carbon::parse($start)
+            ->setTimezone(config('app.timezone'))
+            ->format('Y-m-d H:i');
+
+        $end = Carbon::parse($end)
+            ->setTimezone(config('app.timezone'))
+            ->format('Y-m-d H:i');
+
+        $this->resolveRecord($id)?->update(compact('start', 'end', 'allDay'));
+        $this->refreshEvents();
     }
 
     public function fetchEvents(string $start, string $end): array
@@ -65,9 +93,19 @@ class CalendarOverview extends Widget
         return [];
     }
 
-    public function select(string $start, string $end): void
+    public function refreshEvents(): void
     {
-        //
+        $this->dispatch('filament-calendar--refresh');
+    }
+
+    public function create(string $start, ?string $end, bool $allDay): void
+    {
+        $this->mountAction('create', compact('start', 'end'));
+    }
+
+    public function form(Form $form): Form
+    {
+        return static::getResource()::form($form);
     }
 
     protected function parseBusinessHours(): array

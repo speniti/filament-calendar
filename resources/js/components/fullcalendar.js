@@ -1,4 +1,4 @@
-import { Calendar } from '@fullcalendar/core';
+import {Calendar} from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import googleCalendarPlugin from '@fullcalendar/google-calendar';
@@ -9,6 +9,8 @@ export default function calendar(options) {
     calendar: null,
 
     async init() {
+      const googleCalendar = this.googleCalendarEventSource(options)
+
       this.calendar = new Calendar(this.$root, {
         plugins: [
           dayGridPlugin,
@@ -71,35 +73,49 @@ export default function calendar(options) {
         ...options,
 
         eventSources: [
-          this.googleCalendarEventSource(options),
+          googleCalendar,
           {
-            events: ({ start, end }, resolve, reject) => {
+            events: ({start, end}, resolve, reject) => {
               this.$wire.fetchEvents(start, end).then(resolve).catch(reject);
             },
           },
         ],
 
-        eventDrop: ({ event, revert }) => this.edit(event, revert),
-        eventResize: ({ event, revert }) => this.edit(event, revert),
-        select: ({ start, end }) => this.$wire.select(start, end),
+        eventClick: ({event: {id, url, extendedProps}, jsEvent: event}) => {
+          event.preventDefault()
+
+          if (url) {
+            const isNotPlainLeftClick = e => (e.which > 1) || (e.altKey) || (e.ctrlKey) || (e.metaKey) || (e.shiftKey);
+
+            return window.open(url, (extendedProps.shouldOpenUrlInNewTab || isNotPlainLeftClick(event)) ? '_blank' : '_self')
+          }
+
+          this.$wire.select(id)
+        },
+
+        eventDrop: ({event, revert}) => this.update(event, revert),
+        eventResize: ({event, revert}) => this.update(event, revert),
+        select: ({start, end, allDay}) => this.$wire.create(start, end, allDay),
       });
 
       this.calendar.render();
+
+      window.addEventListener('filament-calendar--refresh', () => this.calendar.refetchEvents())
     },
 
     googleCalendarEventSource(options) {
-      const { googleCalendarApiKey, googleCalendarId } = options;
+      const {googleCalendarApiKey, googleCalendarId} = options;
       delete options.googleCalendarId;
 
       if (!googleCalendarApiKey) {
         return undefined;
       }
 
-      return { googleCalendarId, className: 'fc-event-google' };
+      return {googleCalendarId, className: 'fc-event-google'};
     },
 
-    edit({ id, start, end }, revert) {
-      this.$wire.edit(id, start, end).catch(revert);
+    update({id, start, end, allDay}, revert) {
+      this.$wire.update(id, start, end, allDay).catch(revert);
     },
   };
 }
