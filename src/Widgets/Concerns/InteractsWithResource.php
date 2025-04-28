@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Peniti\FilamentCalendar\Widgets\Concerns;
 
 use Filament\Resources\Resource;
@@ -15,15 +17,14 @@ trait InteractsWithResource
     #[Locked]
     public Model|int|string|null $record = null;
 
-    /** @var class-string<resource> */
+    /** @var class-string<resource>|'' */
     #[Locked]
-    protected static string $resource;
+    protected static string $resource = '';
 
-    protected function resolveRecord(int|string $key): Model
+    /**  @return class-string<resource>|'' */
+    public static function getResource(): string
     {
-        $this->record = static::getResource()::resolveRecordRouteBinding($key);
-
-        return $this->record;
+        return static::$resource;
     }
 
     public function getModel(): ?string
@@ -38,7 +39,10 @@ trait InteractsWithResource
             return $model;
         }
 
-        return static::getResource()::getModel();
+        /** @var class-string<resource> $resource */
+        $resource = static::getResource();
+
+        return $resource::getModel();
     }
 
     public function getRecord(): ?Model
@@ -48,8 +52,9 @@ trait InteractsWithResource
         return $record instanceof Model ? $record : null;
     }
 
-    public function getRecordTitle(): string|Htmlable
+    public function getRecordTitle(): string|Htmlable|null
     {
+        /** @var class-string<resource> $resource */
         $resource = static::getResource();
 
         if (! $resource::hasRecordTitle()) {
@@ -59,16 +64,23 @@ trait InteractsWithResource
         return $resource::getRecordTitle($this->getRecord());
     }
 
-    /**  @return class-string<resource>  */
-    public static function getResource(): string
-    {
-        return static::$resource;
-    }
-
     public function resetRecord(): self
     {
         $this->record = null;
 
         return $this;
+    }
+
+    protected function resolveRecord(int|string $key): ?Model
+    {
+        $resource = static::getResource();
+
+        if (! class_exists($resource)) {
+            return null;
+        }
+
+        $this->record = $resource::resolveRecordRouteBinding($key);
+
+        return $this->record;
     }
 }
