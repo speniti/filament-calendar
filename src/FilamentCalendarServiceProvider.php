@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Peniti\FilamentCalendar;
 
 use Filament\Support\Assets\AlpineComponent;
@@ -8,7 +10,7 @@ use Filament\Support\Facades\FilamentAsset;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
-class FilamentCalendarServiceProvider extends PackageServiceProvider
+final class FilamentCalendarServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
@@ -21,14 +23,14 @@ class FilamentCalendarServiceProvider extends PackageServiceProvider
     {
         FilamentAsset::register([
             AlpineComponent::make(
-                'fullcalendar',
-                $this->package->basePath('/../dist/fullcalendar.js')
+                'calendar',
+                $this->package->basePath('/../dist/components/calendar.js')
             ),
 
-            Css::make(
-                'fullcalendar',
-                $this->package->basePath('/../dist/fullcalendar.css')
-            ),
+            //            Css::make(
+            //                'calendar',
+            //                $this->package->basePath('/../dist/components/calendar.css')
+            //            ),
 
             Css::make(
                 'filament-calendar',

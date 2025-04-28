@@ -1,26 +1,52 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Peniti\FilamentCalendar\Widgets\Concerns;
 
+use Exception;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\StaticAction;
 use Filament\Actions\ViewAction;
 use Filament\Facades\Filament;
 use Filament\Forms\Form;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
-use Peniti\FilamentCalendar\Widgets\CalendarOverview;
+use Peniti\FilamentCalendar\Widgets\Calendar;
 
 trait InteractsWithActions
 {
     public function bootedInteractsWithActions(): void
     {
         $this->cacheCalendarActions();
+    }
+
+    public function hasCreateAction(): bool
+    {
+        return $this->hasAction('create');
+    }
+
+    public function hasDeleteAction(): bool
+    {
+        return $this->hasAction('delete');
+    }
+
+    public function hasEditAction(): bool
+    {
+        return $this->hasAction('edit');
+    }
+
+    public function hasViewAction(): bool
+    {
+        return $this->hasAction('view');
     }
 
     protected function cacheCalendarActions(): void
@@ -33,16 +59,17 @@ trait InteractsWithActions
 
         foreach ($actions as $action) {
             if ($action instanceof ActionGroup) {
-                $this->mergeCachedActions(
-                    $action->livewire($this)->getFlatActions()
-                );
+                /** @var array<string, Action> $grouped */
+                $grouped = $action->livewire($this)->getFlatActions();
+
+                $this->mergeCachedActions($grouped);
 
                 continue;
             }
 
             if (! $action instanceof Action) {
                 throw new InvalidArgumentException(
-                    'Calendar actions must be an instance of '.Action::class.', or '.ActionGroup::class.'.'
+                    sprintf('Calendar actions must be an instance of %s, or %s.', Action::class, ActionGroup::class)
                 );
             }
 
@@ -70,79 +97,120 @@ trait InteractsWithActions
 
     protected function configureCreateAction(CreateAction $action): void
     {
+        /** @var class-string<resource> $resource */
         $resource = static::getResource();
 
         $action->modal()
             ->authorize($resource::canCreate())
             ->model($resource::getModel())
-            ->form(fn (Form $form, CalendarOverview $livewire) => $livewire->form($form->columns(2)))
-            ->mountUsing(fn (Form $form, array $arguments) => $form->fill($arguments))
-            ->using(function (array $data, string $model) use ($resource): Model {
-                $record = new ($model)($data);
-
-                if ($resource::isScopedToTenant() && ($tenant = Filament::getTenant())) {
-                    $relationship = $resource::getTenantRelationship($tenant);
-
-                    if ($relationship instanceof HasManyThrough) {
-                        $record->save();
-
-                        return $record;
-                    }
-
-                    return $relationship->save($record);
-                }
-
-                $record->save();
-
-                return $record;
+            ->form(fn (Form $form, Calendar $livewire) => $livewire->form($form))
+            ->mountUsing(function (Form $form, array $arguments) {
+                /** @var array<string, mixed> $arguments */
+                return $form->fill($arguments);
             })
+            ->using($this->save(...))
             ->createAnother(false)
-            ->after(fn (CalendarOverview $livewire) => $livewire->refreshEvents());
-    }
-
-    protected function configureEditAction(EditAction $action): void
-    {
-        $resource = static::getResource();
-
-        $action->modal()
-            ->model($resource::getModel())
-            ->record(fn (CalendarOverview $livewire) => $livewire->getRecord())
-            ->recordTitle(fn (CalendarOverview $livewire) => $livewire->getRecordTitle())
-            ->authorize(fn (CalendarOverview $livewire) => $resource::canEdit($livewire->getRecord()))
-            ->form(fn (Form $form, CalendarOverview $livewire) => $livewire->form($form->columns(2)))
-            ->extraModalFooterActions(fn () => [Arr::get($this->cachedActions, 'delete')->extraAttributes(['class' => 'ml-auto order-last'])])
-            ->after(fn (CalendarOverview $livewire) => $livewire->refreshEvents());
+            ->after(fn (Calendar $livewire) => $livewire->refreshEvents());
     }
 
     protected function configureDeleteAction(DeleteAction $action): void
     {
+        /** @var class-string<resource> $resource */
         $resource = static::getResource();
 
         $action->modal()
             ->cancelParentActions()
             ->model($resource::getModel())
-            ->record(fn (CalendarOverview $livewire) => $livewire->getRecord())
-            ->recordTitle(fn (CalendarOverview $livewire) => $livewire->getRecordTitle())
-            ->authorize(fn (CalendarOverview $livewire) => $resource::canDelete($livewire->getRecord()))
-            ->after(fn (CalendarOverview $livewire) => $livewire->resetRecord()->refreshEvents());
+            ->record(fn (Calendar $livewire) => $livewire->getRecord())
+            ->recordTitle(fn (Calendar $livewire) => $livewire->getRecordTitle())
+            ->authorize(function (Calendar $livewire) use ($resource) {
+                $record = $livewire->getRecord();
+                assert(! is_null($record));
+
+                return $resource::canDelete($record);
+            })
+            ->after(fn (Calendar $livewire) => $livewire->resetRecord()->refreshEvents());
+    }
+
+    protected function configureEditAction(EditAction $action): void
+    {
+        /** @var class-string<resource> $resource */
+        $resource = static::getResource();
+
+        $action->modal()
+            ->cancelParentActions()
+            ->model($resource::getModel())
+            ->record(fn (Calendar $livewire) => $livewire->getRecord())
+            ->recordTitle(fn (Calendar $livewire) => $livewire->getRecordTitle())
+            ->authorize(function (Calendar $livewire) use ($resource) {
+                $record = $livewire->getRecord();
+                assert(! is_null($record));
+
+                return $resource::canEdit($record);
+            })
+            ->form(fn (Form $form, Calendar $livewire) => $livewire->form($form))
+            ->extraModalFooterActions(function () {
+                /** @var StaticAction|null $deleteAction */
+                $deleteAction = Arr::get($this->cachedActions, 'delete');
+
+                return [$deleteAction?->extraAttributes(['class' => 'ml-auto order-last'])];
+            })
+            ->after(fn (Calendar $livewire) => $livewire->refreshEvents());
     }
 
     protected function configureViewAction(ViewAction $action): void
     {
+        /** @var class-string<resource> $resource */
         $resource = static::getResource();
+
+        /** @var array<StaticAction> $editAction */
+        $editAction = Arr::only($this->cachedActions, ['edit']);
 
         $action->modal()
             ->model($resource::getModel())
-            ->record(fn (CalendarOverview $livewire) => $livewire->getRecord())
-            ->recordTitle(fn (CalendarOverview $livewire) => $livewire->getRecordTitle())
-            ->authorize(fn (CalendarOverview $livewire) => $resource::canView($livewire->getRecord()))
-            ->form(fn (Form $form, CalendarOverview $livewire) => $livewire->form($form->columns(2)))
-            ->extraModalFooterActions(Arr::only($this->cachedActions, ['edit']))
-            ->after(fn (CalendarOverview $livewire) => $livewire->refreshEvents());
+            ->record(fn (Calendar $livewire) => $livewire->getRecord())
+            ->recordTitle(fn (Calendar $livewire) => $livewire->getRecordTitle())
+            ->authorize(function (Calendar $livewire) use ($resource) {
+                $record = $livewire->getRecord();
+                assert(! is_null($record));
+
+                return $resource::canView($record);
+            })
+            ->form(fn (Form $form, Calendar $livewire) => $livewire->form($form))
+            ->extraModalFooterActions($editAction)
+            ->after(fn (Calendar $livewire) => $livewire->refreshEvents());
     }
 
-    protected function hasViewAction(): bool
+    protected function hasAction(string $name): bool
     {
-        return Arr::has($this->cachedActions, 'view');
+        return Arr::has($this->cachedActions, $name);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @param  class-string<Model>  $model
+     *
+     * @throws Exception
+     */
+    protected function save(array $data, string $model): Model|false
+    {
+        /** @var class-string<resource> $resource */
+        $resource = static::getResource();
+
+        /** @var Model $record */
+        $record = new ($model)($data);
+
+        if ($resource::isScopedToTenant() && ($tenant = Filament::getTenant())) {
+            $relationship = $resource::getTenantRelationship($tenant);
+
+            if ($relationship instanceof HasManyThrough) {
+                return tap($record)->save();
+            }
+
+            /** @var HasMany<Model, Model> $relationship */
+            return $relationship->save($record);
+        }
+
+        return tap($record)->save();
     }
 }

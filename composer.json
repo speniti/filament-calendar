@@ -1,29 +1,71 @@
 {
-    "name": "speniti/filament-calendar",
-    "description": "FullCalendar.js integration for Filament panels",
-    "type": "library",
-    "license": "ISC",
-    "autoload": {
-        "psr-4": {
-            "Peniti\\FilamentCalendar\\": "src/"
-        }
-    },
-    "authors": [
-        {
-            "name": "Simone Peniti",
-            "email": "simone@peniti.it"
-        }
-    ],
-    "minimum-stability": "dev",
-    "require": {
-        "filament/support": "^3.0",
-        "spatie/opening-hours": "^2.0"
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Peniti\\FilamentCalendar\\FilamentCalendarServiceProvider"
-            ]
-        }
+  "name": "speniti/filament-calendar",
+  "description": "A set of tools for integrating FullCalendar.js within the Filament ecosystem",
+  "type": "library",
+  "license": "ISC",
+  "autoload": {
+    "psr-4": {
+      "Peniti\\FilamentCalendar\\": "src/"
     }
+  },
+  "authors": [
+    {
+      "name": "Simone Peniti",
+      "email": "simone@peniti.it"
+    }
+  ],
+  "require": {
+    "php": "^8.4",
+    "filament/support": "^3.3",
+    "spatie/opening-hours": "^4.2"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Peniti\\FilamentCalendar\\FilamentCalendarServiceProvider"
+      ]
+    }
+  },
+  "require-dev": {
+    "orchestra/testbench": "v10.1",
+    "laravel/pint": "^1.21",
+    "larastan/larastan": "^3.2",
+    "filament/filament": "^3.3",
+    "pestphp/pest": "^3.7",
+    "pestphp/pest-plugin-livewire": "^3.0",
+    "awcodes/palette": "^1.1",
+    "pestphp/pest-plugin-laravel": "^3.2"
+  },
+  "scripts": {
+    "lint": [
+      "@php vendor/bin/pint --verbose --test --ansi",
+      "@php vendor/bin/phpstan analyse --verbose --memory-limit 512M --ansi"
+    ],
+    "test": "@php vendor/bin/pest",
+    "post-autoload-dump": [
+      "@clear",
+      "@prepare"
+    ],
+    "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+    "prepare": "@php vendor/bin/testbench package:discover --ansi",
+    "build": "@php vendor/bin/testbench workbench:build --ansi",
+    "serve": [
+      "Composer\\Config::disableProcessTimeout",
+      "@build",
+      "@php vendor/bin/testbench serve --ansi"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "App\\": "workbench/app/",
+      "Database\\Factories\\": "workbench/database/factories/",
+      "Database\\Seeders\\": "workbench/database/seeders/",
+      "Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
 }
