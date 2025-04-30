@@ -6,6 +6,9 @@ import tslint from 'typescript-eslint';
 export default tslint.config(
   {
     ignores: ['**/.gitlab-ci-local/', '**/dist/', '**/vendor/'],
+  },
+  {
+    files: ['resources/**/*.ts'],
     extends: [
       eslint.configs.recommended,
       tslint.configs.strictTypeChecked,

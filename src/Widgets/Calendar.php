@@ -37,7 +37,7 @@ abstract class Calendar extends Widget implements HasActions, HasForms
 
     protected int|string|array $columnSpan = 'full';
 
-    /** @var view-string */
+    /** @phpstan-param view-string $view */
     protected static string $view = 'filament-calendar::widgets.calendar-overview';
 
     /** @return array<int, Event>|list<Event> */
