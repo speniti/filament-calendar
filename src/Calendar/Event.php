@@ -67,8 +67,8 @@ final readonly class Event implements Arrayable, Jsonable, JsonSerializable
         /** @var EventJsonArray $event */
         $event = array_filter([
             ...$this->toArray(),
-            'start' => $this->allDay ? $this->start->format('Y-m-d') : $this->start->format('Y-m-d H:i:s'),
-            'end' => $this->allDay ? $this->end?->format('Y-m-d') : $this->end?->format('Y-m-d H:i:s'),
+            'start' => $this->allDay ? $this->start->format('Y-m-d') : $this->start->format('c'),
+            'end' => $this->allDay ? $this->end?->format('Y-m-d') : $this->end?->format('c'),
             'backgroundColor' => (string) $this->backgroundColor,
             'borderColor' => (string) $this->borderColor,
             'display' => $this->display?->value,
