@@ -8,6 +8,7 @@ import {
 } from '@fullcalendar/core';
 import { EventImpl } from '@fullcalendar/core/internal';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import luxonPlugin from '@fullcalendar/luxon3'
 import timeGridPlugin from '@fullcalendar/timegrid';
 import googleCalendarPlugin from '@fullcalendar/google-calendar';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -60,6 +61,7 @@ export default function calendar(
           dayGridPlugin,
           googleCalendarPlugin,
           interactionPlugin,
+          luxonPlugin,
           timeGridPlugin,
         ],
 

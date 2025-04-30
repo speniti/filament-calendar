@@ -39,7 +39,7 @@
   "scripts": {
     "lint": [
       "@php vendor/bin/pint --verbose --test --ansi",
-      "@php vendor/bin/phpstan analyse --verbose --memory-limit 512M --ansi"
+      "@php vendor/bin/phpstan analyse --verbose --memory-limit 1G --ansi"
     ],
     "test": "@php vendor/bin/pest",
     "post-autoload-dump": [
