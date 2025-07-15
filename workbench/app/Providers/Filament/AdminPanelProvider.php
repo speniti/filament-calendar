@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\AnotherPage;
 use App\Filament\Widgets\Calendar;
 use Exception;
 use Filament\Http\Middleware\Authenticate;
@@ -27,6 +28,7 @@ final class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
+            ->spa()
             ->default()
             ->id('admin')
             ->path('admin')
@@ -36,7 +38,7 @@ final class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
-            ->pages([Dashboard::class])
+            ->pages([Dashboard::class, AnotherPage::class])
             ->widgets([Calendar::class])
             ->middleware([
                 EncryptCookies::class,

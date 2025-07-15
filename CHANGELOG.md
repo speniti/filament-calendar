@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to `speniti/calendar` will be documented in this file.
+All notable changes to `speniti/filament-calendar` will be documented in this file.
 
 ## v0.3.1 - 2025-04-30
 

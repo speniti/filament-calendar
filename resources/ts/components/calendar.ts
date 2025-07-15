@@ -8,7 +8,7 @@ import {
 } from '@fullcalendar/core';
 import { EventImpl } from '@fullcalendar/core/internal';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import luxonPlugin from '@fullcalendar/luxon3'
+import luxonPlugin from '@fullcalendar/luxon3';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import googleCalendarPlugin from '@fullcalendar/google-calendar';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -68,7 +68,7 @@ export default function calendar(
         locales,
         locale: document.documentElement.lang,
 
-        aspectRatio: 1.8,
+        aspectRatio: 16 / 9,
         initialView: 'timeGridWeek',
 
         nowIndicator: true,
@@ -152,6 +152,15 @@ export default function calendar(
       window.addEventListener('filament-calendar--refresh', () =>
         this.calendar?.refetchEvents(),
       );
+
+      const placeholder = document.querySelector(
+        '[x-filament-calendar-placeholder]',
+      );
+
+      if (placeholder) {
+        placeholder.innerHTML = '';
+        placeholder.removeAttribute('style');
+      }
     },
 
     googleCalendarEventSource(
