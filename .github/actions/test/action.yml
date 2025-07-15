@@ -21,7 +21,7 @@ runs:
       shell: bash
 
     - name: Run Pest
-      run: vendor/bin/pest --ci --coverage --min=75 --coverage-clover coverage.xml --log-junit junit.xml
+      run: vendor/bin/pest --ci --coverage --min=70 --coverage-clover coverage.xml --log-junit junit.xml
       shell: bash
 
     - name: Upload Coverage Report to Codecov

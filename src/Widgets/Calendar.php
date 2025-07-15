@@ -15,6 +15,7 @@ use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
+use Illuminate\View\View;
 use InvalidArgumentException;
 use Peniti\FilamentCalendar\Calendar\Event;
 use Peniti\FilamentCalendar\Widgets\Concerns\InteractsWithActions as InteractsWithCalendarActions;
@@ -37,8 +38,7 @@ abstract class Calendar extends Widget implements HasActions, HasForms
 
     protected int|string|array $columnSpan = 'full';
 
-    /** @phpstan-param view-string $view */
-    protected static string $view = 'filament-calendar::widgets.calendar-overview';
+    protected static string $view = 'filament-calendar::widgets.overview';
 
     /** @return array<int, Event>|list<Event> */
     abstract public function fetchEvents(string $start, string $end): array;
@@ -86,6 +86,15 @@ abstract class Calendar extends Widget implements HasActions, HasForms
         return null;
     }
 
+    public function getPlaceholderData(): array
+    {
+        return [
+            'columnSpan' => $this->getColumnSpan(),
+            'columnStart' => $this->getColumnStart(),
+            'options' => $this->options,
+        ];
+    }
+
     public function getSlotDuration(): string
     {
         return '00:15:00';
@@ -114,7 +123,18 @@ abstract class Calendar extends Widget implements HasActions, HasForms
             'timeZone' => Config::string('app.timezone'),
         ], static fn ($element) => ! is_null($element));
 
-        $this->options = $options;
+        $this->options = $this->parseOptions($options);
+    }
+
+    public function placeholder(): View
+    {
+        return view(
+            'filament-calendar::widgets.loading-section',
+            [
+                'height' => $this->getPlaceholderHeight(),
+                ...$this->getPlaceholderData(),
+            ],
+        );
     }
 
     final public function refreshEvents(): void
@@ -154,6 +174,20 @@ abstract class Calendar extends Widget implements HasActions, HasForms
                 'endTime' => (string) $range->end(),
             ])
         );
+    }
+
+    /**
+     * @param  array<string,mixed>  $options
+     * @return array<string,mixed>
+     */
+    protected function parseOptions(array $options): array
+    {
+        if (is_string($aspectRatio = data_get($options, 'aspectRatio', 16 / 9))) {
+            $aspectRatio = explode('/', $aspectRatio);
+            $options['aspectRatio'] = (int) $aspectRatio[0] / (int) $aspectRatio[1];
+        }
+
+        return $options;
     }
 
     /** @return array{slotMinTime: string, slotMaxTime: string}|array<empty> */

@@ -27,7 +27,7 @@
     }
   },
   "require-dev": {
-    "orchestra/testbench": "v10.1",
+    "orchestra/testbench": "^v10.1",
     "laravel/pint": "^1.21",
     "larastan/larastan": "^3.2",
     "filament/filament": "^3.3",

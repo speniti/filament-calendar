@@ -13,11 +13,12 @@ use Filament\Actions\EditAction;
 use Filament\Support\Enums\MaxWidth;
 use Peniti\FilamentCalendar\Calendar\Event;
 use Peniti\FilamentCalendar\Widgets\Calendar as BaseCalendar;
+use Spatie\OpeningHours\OpeningHours;
 
 final class Calendar extends BaseCalendar
 {
     public array $options = [
-        'aspectRatio' => '1.8',
+        'aspectRatio' => '16/9',
         'headerToolbar' => [
             'right' => 'prev,next today',
             'center' => 'title',
@@ -47,6 +48,19 @@ final class Calendar extends BaseCalendar
                 );
             })
             ->all();
+    }
+
+    public function getBusinessHours(): OpeningHours
+    {
+        return OpeningHours::create([
+            'monday' => ['09:00-19:00'],
+            'tuesday' => ['09:00-19:00'],
+            'wednesday' => ['09:00-19:00'],
+            'thursday' => ['09:00-19:00'],
+            'friday' => ['09:00-19:00'],
+            'saturday' => [],
+            'sunday' => [],
+        ]);
     }
 
     protected function calendarActions(): array
