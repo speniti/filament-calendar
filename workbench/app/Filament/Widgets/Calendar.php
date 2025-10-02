@@ -7,20 +7,22 @@ namespace App\Filament\Widgets;
 use App\Filament\Resources\AppointmentResource;
 use App\Models\Appointment;
 use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Support\Enums\MaxWidth;
+use Filament\Support\Enums\Width;
+use Filament\Support\Facades\FilamentColor;
 use Peniti\FilamentCalendar\Calendar\Event;
 use Peniti\FilamentCalendar\Widgets\Calendar as BaseCalendar;
 use Spatie\OpeningHours\OpeningHours;
 
-final class Calendar extends BaseCalendar
+class Calendar extends BaseCalendar
 {
     public array $options = [
-        'aspectRatio' => '16/9',
+        'aspectRatio' => '16/10',
         'headerToolbar' => [
-            'right' => 'prev,next today',
+            'right' => 'prev,next today,refresh',
             'center' => 'title',
             'left' => 'dayGridMonth,dayGridWeek',
         ],
@@ -38,12 +40,15 @@ final class Calendar extends BaseCalendar
 
         return $appointments
             ->map(function (Appointment $appointment) {
+                /** @var ?string $color */
+                $color = data_get(FilamentColor::getColors(), "$appointment->color.500");
+
                 return new Event(
                     id: $appointment->ulid,
                     title: $appointment->summary,
                     start: $appointment->start,
                     allDay: $appointment->allDay,
-                    backgroundColor: $appointment->color,
+                    backgroundColor: $color,
                     startEditable: true,
                 );
             })
@@ -58,8 +63,6 @@ final class Calendar extends BaseCalendar
             'wednesday' => ['09:00-19:00'],
             'thursday' => ['09:00-19:00'],
             'friday' => ['09:00-19:00'],
-            'saturday' => [],
-            'sunday' => [],
         ]);
     }
 
@@ -68,18 +71,18 @@ final class Calendar extends BaseCalendar
         return [
             CreateAction::make()
                 ->slideOver()
-                ->modalWidth(MaxWidth::Medium)
-                ->mutateFormDataUsing($this->computeAppointmentStart(...)),
+                ->modalWidth(Width::Medium)
+                ->mutateDataUsing($this->computeAppointmentStart(...)),
             DeleteAction::make(),
             EditAction::make()
                 ->slideOver()
-                ->modalWidth(MaxWidth::Medium)
+                ->modalWidth(Width::Medium)
                 ->fillForm(fn (Appointment $appointment) => [
                     ...$appointment->toArray(),
                     'color' => (string) $appointment->color,
                     'at' => $appointment->allDay ? null : $appointment->start->format('H:i'),
                 ])
-                ->mutateFormDataUsing($this->computeAppointmentStart(...)),
+                ->mutateDataUsing($this->computeAppointmentStart(...)),
         ];
     }
 
@@ -94,5 +97,14 @@ final class Calendar extends BaseCalendar
         );
 
         return $data;
+    }
+
+    protected function customCalendarActions(): array
+    {
+        return [Action::make('refresh')
+            ->label('Refresh')
+            ->tooltip('Refresh calendar events')
+            ->action(fn () => $this->refreshEvents()),
+        ];
     }
 }

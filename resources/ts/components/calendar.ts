@@ -1,6 +1,7 @@
 import {
   Calendar,
   CalendarOptions,
+  CustomButtonInput,
   EventClickArg,
   EventInput,
   EventSourceFuncArg,
@@ -28,12 +29,18 @@ interface WireCalendar {
     end: Date | null,
     allDay: boolean,
   ): Promise<void>;
+
+  mountAction(name: string): void;
 }
 
 interface FilamentCalendar extends Record<string, unknown> {
   calendar?: Calendar;
 
   googleCalendarEventSource(options: FilamentCalendarOptions): EventSourceInput;
+
+  parseCustomButtons(
+    options: FilamentCalendarOptions,
+  ): Record<string, CustomButtonInput> | undefined;
 
   edit(event: EventImpl, revert: () => void): void;
 }
@@ -55,6 +62,7 @@ export default function calendar(
 
     init() {
       const googleCalendar = this.googleCalendarEventSource(options);
+      const customButtons = this.parseCustomButtons(options);
 
       this.calendar = new Calendar(this.$root, {
         plugins: [
@@ -64,6 +72,8 @@ export default function calendar(
           luxonPlugin,
           timeGridPlugin,
         ],
+
+        customButtons,
 
         locales,
         locale: document.documentElement.lang,
@@ -174,6 +184,26 @@ export default function calendar(
       }
 
       return { googleCalendarId, className: 'fc-event-google' };
+    },
+
+    parseCustomButtons(
+      options: FilamentCalendarOptions,
+    ): Record<string, CustomButtonInput> | undefined {
+      const { customButtons } = options;
+
+      if (customButtons) {
+        Object.entries(customButtons).forEach(
+          ([key, button]: [string, CustomButtonInput]) => {
+            button.click = (): void => {
+              this.$wire.mountAction(key);
+            };
+          },
+        );
+
+        delete options.customButtons;
+      }
+
+      return customButtons;
     },
 
     edit({ id, start, end, allDay }: EventImpl, revert: () => void): void {

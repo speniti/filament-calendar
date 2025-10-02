@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Peniti\FilamentCalendar\Widgets\Concerns;
 
+use BadMethodCallException;
 use Filament\Resources\Resource;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
@@ -25,24 +26,6 @@ trait InteractsWithResource
     public static function getResource(): string
     {
         return static::$resource;
-    }
-
-    public function getModel(): ?string
-    {
-        $model = $this->model;
-
-        if ($model instanceof Model) {
-            return $model::class;
-        }
-
-        if (filled($model)) {
-            return $model;
-        }
-
-        /** @var class-string<resource> $resource */
-        $resource = static::getResource();
-
-        return $resource::getModel();
     }
 
     public function getRecord(): ?Model
@@ -76,7 +59,7 @@ trait InteractsWithResource
         $resource = static::getResource();
 
         if (! class_exists($resource)) {
-            return null;
+            throw new BadMethodCallException('No resource defined for this calendar.');
         }
 
         $this->record = $resource::resolveRecordRouteBinding($key);

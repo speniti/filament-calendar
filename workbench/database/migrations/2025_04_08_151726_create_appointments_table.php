@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Tenant;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,6 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('appointments', static function (Blueprint $table) {
+            $table->foreignIdFor(Tenant::class)
+                ->constrained()
+                ->cascadeOnDelete();
+
             $table->ulid()->primary();
             $table->string('summary');
             $table->text('notes')->nullable();
