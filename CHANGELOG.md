@@ -2,6 +2,14 @@
 
 All notable changes to `speniti/filament-calendar` will be documented in this file.
 
+## v1.0.0 - 2025-10-02
+
+### What’s Changed
+
+### 🚀 New Features
+
+* breaking: Upgrade to Filament v4 (#5) @speniti
+
 ## v0.4.0 - 2025-07-15
 
 ### What’s Changed
