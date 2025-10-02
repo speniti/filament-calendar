@@ -1,0 +1,55 @@
+/*
+  CSS Custom Properties Declaration File for IDE Support.
+  These are placeholder values for IDE intellisense.
+  Actual values are defined by Filament/Tailwind at runtime
+*/
+
+:root {
+  /* Filament Design System Variables (runtime values) */
+  --white: color;
+  --primary-400: color;
+  --primary-500: color;
+  --primary-600: color;
+  --gray-50: color;
+  --gray-200: color;
+  --gray-300: color;
+  --gray-700: color;
+  --gray-950: color;
+  --danger-400: color;
+  --danger-500: color;
+  --danger-600: color;
+
+  /* Tailwind CSS System Variables */
+  --spacing: length;
+
+  /* FullCalendar Custom Properties (defined in filament-calendar.css) */
+  --fc-event-bg-color: color;
+  --fc-event-text-color: color;
+  --fc-today-bg-color: color;
+  --fc-border-color: color;
+  --fc-event-border-color: color;
+  --fc-button-active-bg-color: color;
+  --fc-button-active-dark-bg-color: color;
+  --fc-button-active-hover-bg-color: color;
+  --fc-button-active-dark-hover-bg-color: color;
+  --fc-button-active-border-color: color;
+  --fc-button-active-focus-ring-color: color;
+  --fc-button-active-dark-focus-ring-color: color;
+  --fc-button-active-text-color: color;
+  --fc-button-bg-color: color;
+  --fc-button-border-color: color;
+  --fc-button-hover-bg-color: color;
+  --fc-button-hover-border-color: color;
+  --fc-button-text-color: color;
+  --fc-google-event-bg-color: color;
+  --fc-google-event-hover-bg-color: color;
+  --fc-google-event-text-color: color;
+  --fc-google-event-border-color: color;
+  --fc-google-event-dark-bg-color: color;
+  --fc-google-event-dark-hover-bg-color: color;
+  --fc-google-event-dark-text-color: color;
+  --fc-google-event-dark-border-color: color;
+  --fc-non-business-color: color;
+  --fc-now-indicator-color: color;
+  --fc-page-bg-color: color;
+}

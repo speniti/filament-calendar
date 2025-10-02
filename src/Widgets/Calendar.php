@@ -4,21 +4,28 @@ declare(strict_types=1);
 
 namespace Peniti\FilamentCalendar\Widgets;
 
+use BadMethodCallException;
 use Carbon\Carbon;
+
+use function collect;
+
+use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Schema;
 use Filament\Widgets\Widget;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Illuminate\View\View;
 use InvalidArgumentException;
 use Peniti\FilamentCalendar\Calendar\Event;
-use Peniti\FilamentCalendar\Widgets\Concerns\InteractsWithActions as InteractsWithCalendarActions;
+use Peniti\FilamentCalendar\Widgets\Concerns\InteractsWithCalendarActions;
 use Peniti\FilamentCalendar\Widgets\Concerns\InteractsWithResource;
 use Spatie\OpeningHours\Day;
 use Spatie\OpeningHours\OpeningHours;
@@ -38,7 +45,7 @@ abstract class Calendar extends Widget implements HasActions, HasForms
 
     protected int|string|array $columnSpan = 'full';
 
-    protected static string $view = 'filament-calendar::widgets.overview';
+    protected string $view = 'filament-calendar::widgets.overview';
 
     /** @return array<int, Event>|list<Event> */
     abstract public function fetchEvents(string $start, string $end): array;
@@ -46,7 +53,7 @@ abstract class Calendar extends Widget implements HasActions, HasForms
     public function create(string $start, ?string $end, bool $allDay): mixed
     {
         if (! $this->hasCreateAction()) {
-            return null;
+            throw new BadMethodCallException('No create action defined for this calendar.');
         }
 
         return $this->mountAction('create', compact('start', 'end', 'allDay'));
@@ -65,15 +72,6 @@ abstract class Calendar extends Widget implements HasActions, HasForms
 
         $this->refreshEvents();
         $this->success();
-    }
-
-    public function form(Form $form): Form
-    {
-        if (! class_exists($resource = self::getResource())) {
-            return $form;
-        }
-
-        return $resource::form($form);
     }
 
     public function getAllDaySlot(): bool
@@ -117,6 +115,8 @@ abstract class Calendar extends Widget implements HasActions, HasForms
             'slotDuration' => $this->getSlotDuration(),
             ...$this->slotOptions(),
 
+            ...$this->customButtons(),
+
             'googleCalendarApiKey' => Config::string('filament-calendar.sources.google.calendar_key'),
             'googleCalendarId' => Config::string('filament-calendar.sources.google.calendar_id'),
 
@@ -142,10 +142,19 @@ abstract class Calendar extends Widget implements HasActions, HasForms
         $this->dispatch('filament-calendar--refresh');
     }
 
+    public function schema(Schema $schema): Schema
+    {
+        if (! class_exists($resource = self::getResource())) {
+            return $schema;
+        }
+
+        return $resource::form($schema);
+    }
+
     public function select(int|string $id): mixed
     {
         if (! $this->resolveRecord($id)) {
-            return null;
+            throw new ModelNotFoundException('Record not found.');
         }
 
         if ($this->hasViewAction()) {
@@ -156,7 +165,25 @@ abstract class Calendar extends Widget implements HasActions, HasForms
             return $this->mountAction('edit');
         }
 
-        return null;
+        throw new BadMethodCallException('No view or edit action defined for this calendar.');
+    }
+
+    /** @return array{customButtons: array<string, array{text: Htmlable|string|null, hint: ?string}>}|array<empty> */
+    protected function customButtons(): array
+    {
+        if (empty($actions = $this->customCalendarActions())) {
+            return [];
+        }
+
+        return [
+            'customButtons' => collect($actions)
+                ->mapWithKeys(fn (Action $action) => [
+                    $action->getName() => [
+                        'text' => $action->getLabel(),
+                        'hint' => $action->getTooltip(),
+                    ],
+                ])->all(),
+        ];
     }
 
     /** @return array{daysOfWeek: list<int>, startTime: string, endTime: string}|array<empty> */
@@ -182,12 +209,14 @@ abstract class Calendar extends Widget implements HasActions, HasForms
      */
     protected function parseOptions(array $options): array
     {
-        if (is_string($aspectRatio = data_get($options, 'aspectRatio', 16 / 9))) {
+        $aspectRatio = data_get($options, 'aspectRatio', 16 / 9);
+
+        if (is_string($aspectRatio)) {
             $aspectRatio = explode('/', $aspectRatio);
-            $options['aspectRatio'] = (int) $aspectRatio[0] / (int) $aspectRatio[1];
+            $aspectRatio = (int) $aspectRatio[0] / (int) $aspectRatio[1];
         }
 
-        return $options;
+        return [...$options, 'aspectRatio' => $aspectRatio];
     }
 
     /** @return array{slotMinTime: string, slotMaxTime: string}|array<empty> */
@@ -232,8 +261,9 @@ abstract class Calendar extends Widget implements HasActions, HasForms
             )
         );
 
-        return $slots->reduce(
-            static function (?Time $result, Time $opening) use ($kind) {
+        /** @var Time $slot */
+        $slot = $slots->reduce(
+            static function (?Time $result, Time $opening) use ($kind): Time {
                 assert($result instanceof Time);
 
                 return match ($kind) {
@@ -244,6 +274,8 @@ abstract class Calendar extends Widget implements HasActions, HasForms
             },
             $slots[0]
         );
+
+        return $slot;
     }
 
     protected function updateRecord(?Model $record, Carbon $start, ?Carbon $end, bool $allDay): void

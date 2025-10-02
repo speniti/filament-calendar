@@ -1,104 +1,149 @@
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer utilities {
-  .fc-button-active-dark {
+@reference "./custom-properties.d.css";
+
+@utility fc-button-active-dark {
     --tw-ring-color: var(--fc-button-active-dark-focus-ring-color);
 
+    color: var(--fc-button-active-dark-text-color) !important;
     background-color: var(--fc-button-active-dark-bg-color) !important;
-  }
+}
 
-  .fc-button-active-dark:hover {
+@utility fc-button-active-dark-hover {
     background-color: var(--fc-button-active-dark-hover-bg-color) !important;
-  }
+}
 
-  .fc-event-google-dark {
+@utility fc-event-google-dark {
     background-color: var(--fc-google-event-dark-bg-color);
     color: var(--fc-google-event-dark-text-color);
     border-color: var(--fc-google-event-dark-border-color);
-  }
+}
 
-  .fc-event-google-dark:hover {
+.fc-event-google-dark:hover {
     background-color: var(--fc-google-event-dark-hover-bg-color);
-  }
 }
 
 :root {
-  --fc-border-color: theme('colors.zinc.200');
+  --fc-event-bg-color: --alpha(var(--primary-500) / 85%);
+  --fc-event-text-color: white;
+  --fc-today-bg-color: --alpha(var(--primary-500) / 10%);
+  --fc-border-color: var(--gray-200);
   --fc-event-border-color: transparent;
-  --fc-button-active-bg-color: theme('colors.amber.600');
-  --fc-button-active-dark-bg-color: theme('colors.amber.400');
-  --fc-button-active-hover-bg-color: theme('colors.amber.600');
-  --fc-button-active-dark-hover-bg-color: theme('colors.amber.400');
-  --fc-button-active-border-color: transparent;
-  --fc-button-active-focus-ring-color: theme('colors.amber.500' / 50%);
-  --fc-button-active-dark-focus-ring-color: theme('colors.amber.400' / 50%);
-  --fc-button-active-text-color: theme('colors.white');
-  --fc-button-bg-color: theme('colors.white');
-  --fc-button-border-color: theme('colors.zinc.950' / 10%);
-  --fc-button-hover-bg-color: theme('colors.zinc.50');
-  --fc-button-hover-border-color: theme('colors.zinc.950' / 10%);
-  --fc-button-text-color: theme('colors.zinc.950');
-  --fc-google-event-bg-color: theme('colors.red.500' / 10%);
-  --fc-google-event-hover-bg-color: theme('colors.red.500' / 20%);
-  --fc-google-event-text-color: theme('colors.zinc.950');
-  --fc-google-event-border-color: theme('colors.red.600' / 10%);
-  --fc-google-event-dark-bg-color: theme('colors.red.400' / 5%);
-  --fc-google-event-dark-hover-bg-color: theme('colors.white' / 10%);
-  --fc-google-event-dark-text-color: theme('colors.white');
-  --fc-google-event-dark-border-color: theme('colors.red.600' / 10%);
-  --fc-non-business-color: theme('colors.zinc.300' / 25%);
-  --fc-now-indicator-color: theme('colors.red.500');
+  --fc-button-active-bg-color: var(--gray-50);
+  --fc-button-active-hover-bg-color: var(--gray-50);
+  --fc-button-active-text-color: var(--primary-600);
+  --fc-button-active-border-color: --alpha(var(--primary-500) / 50%);
+  --fc-button-active-focus-ring-color: --alpha(var(--primary-500) / 50%);
+  --fc-button-active-dark-text-color: var(--primary-400);
+  --fc-button-active-dark-hover-bg-color: --alpha(var(--color-white) / 5%);
+  --fc-button-active-dark-bg-color: --alpha(var(--color-white) / 5%);
+  --fc-button-active-dark-focus-ring-color: --alpha(var(--primary-400) / 50%);
+  --fc-button-bg-color: transparent;
+  --fc-button-border-color: --alpha(var(--gray-950) / 10%);
+  --fc-button-hover-bg-color: var(--gray-50);
+  --fc-button-hover-border-color: --alpha(var(--gray-950) / 10%);
+  --fc-button-text-color: var(--gray-700);
+  --fc-google-event-bg-color: --alpha(var(--danger-500) / 10%);
+  --fc-google-event-hover-bg-color: --alpha(var(--danger-500) / 20%);
+  --fc-google-event-text-color: var(--gray-950);
+  --fc-google-event-border-color: --alpha(var(--danger-600) / 10%);
+  --fc-google-event-dark-bg-color: --alpha(var(--danger-400) / 10%);
+  --fc-google-event-dark-hover-bg-color: --alpha(--white / 10%);
+  --fc-google-event-dark-text-color: white;
+  --fc-google-event-dark-border-color: --alpha(var(--danger-600) / 10%);
+  --fc-non-business-color: --alpha(var(--gray-300) / 25%);
+  --fc-now-indicator-color: var(--danger-500);
   --fc-page-bg-color: transparent;
 }
 
-.fc .fc-button {
-  border-radius: 0.5rem;
-}
+.fc {
+  .fc-button {
+    @apply text-sm! font-semibold! focus:shadow-none! focus:ring-inset;
 
-.fc-button-primary {
-  @apply dark:bg-white/5 dark:text-white dark:hover:text-white dark:hover:bg-white/10 focus:ring-2 focus:ring-gray-950/10 dark:focus:ring-white/20;
-  @apply text-sm font-semibold focus:shadow-none !important;
-}
+    border: none;
+    border-radius: var(--radius-lg);
+    padding-inline: calc(var(--spacing)*3);
+    padding-block: calc(var(--spacing)*2);
 
-.fc-button-primary:disabled {
-  @apply dark:bg-white/5 dark:text-white dark:hover:text-white dark:hover:bg-white/10 cursor-not-allowed opacity-75;
-}
+    .fc-icon {
+      font-size: 1rem;
+      font-weight: 600;
+      display: block;
+    }
+  }
 
-.fc-button-active {
-  --tw-ring-color: var(--fc-button-active-focus-ring-color) !important;
+  .fc-button-primary {
+    @apply dark:text-gray-200 dark:hover:bg-white/5 focus:ring-2 focus:ring-gray-700/10 dark:focus:ring-gray-200/50;
 
-  color: var(--fc-button-active-text-color) !important;
+    &:hover {
+      @apply dark:text-gray-200;
+    }
 
-  @apply focus:shadow-none focus:ring-2;
-  @apply dark:fc-button-active-dark !important;
-}
+    &:active {
+      @apply dark:text-gray-200! dark:hover:bg-white/5!;
+    }
 
-.fc-button-active:hover {
-  background-color: var(--fc-button-active-hover-bg-color) !important;
+    &:disabled {
+      @apply dark:text-gray-200 dark:hover:bg-white/5 cursor-not-allowed opacity-75;
+    }
+  }
+
+  .fc-button-active {
+    --tw-ring-color: var(--fc-button-active-focus-ring-color) !important;
+
+    color: var(--fc-button-active-text-color) !important;
+
+    @apply focus:shadow-none focus:ring-2 dark:fc-button-active-dark!;
+
+
+    &:hover {
+      @apply dark:fc-button-active-dark-hover!;
+
+      background-color: var(--fc-button-active-hover-bg-color) ;
+    }
+  }
+
+  .fc-button-group {
+    .fc-button {
+      @apply focus:z-2;
+    }
+  }
+
+  .fc-event-secondary,
+  .fc-event-secondary > .fc-event-main {
+    @apply bg-white! text-zinc-950! border-zinc-950/10! hover:bg-zinc-50 dark:bg-white/5! dark:hover:bg-white/10!;
+  }
+
+  .fc-event-google,
+  .fc-event-google > .fc-event-main {
+    background-color: var(--fc-google-event-bg-color);
+    color: var(--fc-google-event-text-color);
+    border-color: var(--fc-google-event-border-color);
+
+    @apply pointer-events-none! dark:fc-event-google-dark!;
+  }
+
+  .fc-event-google:hover {
+    background-color: var(--fc-google-event-hover-bg-color);
+  }
+
+  .fc-toolbar-title {
+    @apply text-lg! capitalize!;
+  }
+
+  .fc-popover {
+    @apply rounded-xl! bg-white! shadow-sm! border-none! ring-2! ring-gray-950/5! dark:bg-gray-900! dark:ring-white/30! max-w-xs! w-full!;
+
+    .fc-popover-header {
+      @apply rounded-t-xl px-2 p-0.5 font-semibold text-sm;
+    }
+  }
 }
 
 .fc-col-header-cell-cushion,
 .fc-timegrid-axis-cushion,
 .fc-timegrid-slot-label-cushion {
   @apply text-xs;
-}
-
-.fc-event-secondary,
-.fc-event-secondary > .fc-event-main {
-  @apply bg-white text-zinc-950 border-zinc-950/10 hover:bg-zinc-50 dark:bg-white/5 dark:hover:bg-white/10 !important;
-}
-
-.fc-event-google,
-.fc-event-google > .fc-event-main {
-  background-color: var(--fc-google-event-bg-color);
-  color: var(--fc-google-event-text-color);
-  border-color: var(--fc-google-event-border-color);
-
-  @apply pointer-events-none dark:fc-event-google-dark !important;
-}
-
-.fc-event-google:hover {
-  background-color: var(--fc-google-event-hover-bg-color);
 }
 
 .fc-event-time,
@@ -110,10 +155,6 @@
 .fc-theme-standard th,
 .fc-theme-standard .fc-scrollgrid {
   @apply dark:border-zinc-200/10;
-}
-
-.fc-toolbar-title {
-  @apply text-lg capitalize !important;
 }
 
 .fc-daygrid-block-event {
@@ -136,12 +177,4 @@
 
 .fc-event-main-frame {
   flex-direction: column;
-}
-
-.fc-popover {
-  @apply rounded-xl bg-white shadow-sm border-none ring-2 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/30 max-w-xs w-full !important;
-
-  .fc-popover-header {
-    @apply rounded-t-xl px-2 p-0.5 font-semibold text-sm;
-  }
 }
