@@ -2,6 +2,14 @@
 
 All notable changes to `speniti/filament-calendar` will be documented in this file.
 
+## v1.0.2 - 2025-10-03
+
+### What’s Changed
+
+### 🐞 Bug Fixes
+
+* fix: Codecov reports upload (#7) @speniti
+
 ## v1.0.1 - 2025-10-03
 
 ### What’s Changed
