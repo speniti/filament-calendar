@@ -29,7 +29,7 @@ runs:
       uses: codecov/codecov-action@v5
       with:
         token: ${{ inputs.codecov-token }}
-        slug: speniti/filament-mapbox
+        slug: speniti/filament-calendar
         files: coverage.xml
 
     - name: Upload Test Results to Codecov
@@ -37,6 +37,6 @@ runs:
       uses: codecov/test-results-action@v1
       with:
         token: ${{ inputs.codecov-token }}
-        slug: speniti/filament-mapbox
+        slug: speniti/filament-calendar
         files: junit.xml
 
