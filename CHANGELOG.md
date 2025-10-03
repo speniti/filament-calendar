@@ -2,6 +2,14 @@
 
 All notable changes to `speniti/filament-calendar` will be documented in this file.
 
+## v1.0.1 - 2025-10-03
+
+### What’s Changed
+
+### ✏️ Documentation
+
+* doc: Added badges and brief description to README.md (#6) @speniti
+
 ## v1.0.0 - 2025-10-02
 
 ### What’s Changed
