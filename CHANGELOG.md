@@ -2,6 +2,12 @@
 
 All notable changes to `speniti/filament-calendar` will be documented in this file.
 
+## v1.0.3 - 2025-10-03
+
+### What’s Changed
+
+* ci: Run tests and upload coverage on push to the main branch (#8) @speniti
+
 ## v1.0.2 - 2025-10-03
 
 ### What’s Changed
