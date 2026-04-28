@@ -16,8 +16,8 @@
   ],
   "require": {
     "php": "^8.4",
-    "filament/support": "^v4.1",
-    "spatie/opening-hours": "^4.2"
+    "filament/support": "^v5",
+    "spatie/opening-hours": "^4"
   },
   "extra": {
     "laravel": {
@@ -27,15 +27,15 @@
     }
   },
   "require-dev": {
-    "orchestra/testbench": "^v10.6",
-    "laravel/pint": "^v1.25",
-    "larastan/larastan": "^v3.7",
-    "filament/filament": "^v4.1",
-    "pestphp/pest": "^v4.1",
-    "pestphp/pest-plugin-livewire": "^v4.0",
-    "awcodes/palette": "^v2.0",
-    "pestphp/pest-plugin-laravel": "^v4.0",
-    "laravel/boost": "^v1.3"
+    "orchestra/testbench": "^v11",
+    "laravel/pint": "^v1",
+    "larastan/larastan": "^v3",
+    "filament/filament": "^v5",
+    "pestphp/pest": "^v4",
+    "pestphp/pest-plugin-livewire": "^v4",
+    "awcodes/palette": "^v3",
+    "pestphp/pest-plugin-laravel": "^v4",
+    "laravel/boost": "^v2"
   },
   "scripts": {
     "lint": [
