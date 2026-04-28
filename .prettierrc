@@ -1,37 +1,21 @@
 {
   "arrowParens": "avoid",
   "bracketSameLine": false,
-  "importOrder": [
-    "^@",
-    "^[a-zA-Z]",
-    "^[./]"
-  ],
+  "importOrder": ["^@", "^[a-zA-Z]", "^[./]"],
   "importOrderGroupNamespaceSpecifiers": true,
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
-  "printWidth": 80,
+  "printWidth": 120,
   "singleQuote": true,
   "tabWidth": 2,
-  "plugins": [
-    "@shufo/prettier-plugin-blade"
-  ],
+  "plugins": ["@shufo/prettier-plugin-blade"],
   "overrides": [
     {
-      "files": [
-        "*.blade.php"
-      ],
+      "files": ["*.blade.php"],
       "options": {
         "parser": "blade",
         "sortTailwindcssClasses": true,
         "wrapAttributes": "force-expand-multiline"
-      }
-    },
-    {
-      "files": [
-        "*.css"
-      ],
-      "options": {
-        "order": "alphabetical"
       }
     }
   ]

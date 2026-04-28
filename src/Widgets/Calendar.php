@@ -10,7 +10,7 @@ use Carbon\Carbon;
 use function collect;
 
 use Filament\Actions\Action;
-use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Concerns\InteractsWithActions as InteractsWithFilamentActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -35,8 +35,8 @@ use Spatie\OpeningHours\TimeRange;
 
 abstract class Calendar extends Widget implements HasActions, HasForms
 {
-    use InteractsWithActions;
     use InteractsWithCalendarActions;
+    use InteractsWithFilamentActions;
     use InteractsWithForms;
     use InteractsWithResource;
 
@@ -67,7 +67,7 @@ abstract class Calendar extends Widget implements HasActions, HasForms
             $this->resolveRecord($id),
             Carbon::parse($start)->setTimezone($timeZone),
             empty($end) ? null : Carbon::parse($end)->setTimezone($timeZone),
-            $allDay
+            $allDay,
         );
 
         $this->refreshEvents();
@@ -106,35 +106,35 @@ abstract class Calendar extends Widget implements HasActions, HasForms
     final public function mount(): void
     {
         /** @var array<string, mixed> $options */
-        $options = array_filter([
-            ...$this->options,
+        $options = array_filter(
+            [
+                ...$this->options,
 
-            'allDaySlot' => $this->getAllDaySlot(),
-            'businessHours' => $this->parseBusinessHours(),
+                'allDaySlot' => $this->getAllDaySlot(),
+                'businessHours' => $this->parseBusinessHours(),
 
-            'slotDuration' => $this->getSlotDuration(),
-            ...$this->slotOptions(),
+                'slotDuration' => $this->getSlotDuration(),
+                ...$this->slotOptions(),
 
-            ...$this->customButtons(),
+                ...$this->customButtons(),
 
-            'googleCalendarApiKey' => Config::string('filament-calendar.sources.google.calendar_key'),
-            'googleCalendarId' => Config::string('filament-calendar.sources.google.calendar_id'),
+                'googleCalendarApiKey' => Config::string('filament-calendar.sources.google.calendar_key'),
+                'googleCalendarId' => Config::string('filament-calendar.sources.google.calendar_id'),
 
-            'timeZone' => Config::string('app.timezone'),
-        ], static fn ($element) => ! is_null($element));
+                'timeZone' => Config::string('app.timezone'),
+            ],
+            static fn ($element) => ! is_null($element),
+        );
 
         $this->options = $this->parseOptions($options);
     }
 
     public function placeholder(): View
     {
-        return view(
-            'filament-calendar::widgets.loading-section',
-            [
-                'height' => $this->getPlaceholderHeight(),
-                ...$this->getPlaceholderData(),
-            ],
-        );
+        return view('filament-calendar::widgets.loading-section', [
+            'height' => $this->getPlaceholderHeight(),
+            ...$this->getPlaceholderData(),
+        ]);
     }
 
     final public function refreshEvents(): void
@@ -148,6 +148,7 @@ abstract class Calendar extends Widget implements HasActions, HasForms
             return $schema;
         }
 
+        /** @var Schema */
         return $resource::form($schema);
     }
 
@@ -168,7 +169,7 @@ abstract class Calendar extends Widget implements HasActions, HasForms
         throw new BadMethodCallException('No view or edit action defined for this calendar.');
     }
 
-    /** @return array{customButtons: array<string, array{text: Htmlable|string|null, hint: ?string}>}|array<empty> */
+    /** @return array{customButtons: array<string, array{text: Htmlable|string|null, hint: Htmlable|string|null}>}|array<empty> */
     protected function customButtons(): array
     {
         if (empty($actions = $this->customCalendarActions())) {
@@ -176,31 +177,36 @@ abstract class Calendar extends Widget implements HasActions, HasForms
         }
 
         return [
-            'customButtons' => collect($actions)
-                ->mapWithKeys(fn (Action $action) => [
-                    $action->getName() => [
+            'customButtons' => collect($actions)->mapWithKeys(function (Action $action) {
+                /** @var string $key */
+                $key = $action->getName();
+
+                return [
+                    $key => [
                         'text' => $action->getLabel(),
                         'hint' => $action->getTooltip(),
                     ],
-                ])->all(),
+                ];
+            })->all(),
         ];
     }
 
     /** @return array{daysOfWeek: list<int>, startTime: string, endTime: string}|array<empty> */
     protected function parseBusinessHours(): array
     {
-        if (! $businessHours = $this->getBusinessHours()) {
+        if (! ($businessHours = $this->getBusinessHours())) {
             return [];
         }
 
         /** @var array{daysOfWeek: list<int>, startTime: string, endTime: string} */
-        return $businessHours->flatMap(
-            fn (OpeningHoursForDay $hoursForDay, string $day) => $hoursForDay->map(fn (TimeRange $range) => [
-                'daysOfWeek' => [Day::fromName($day)->toISO()],
-                'startTime' => (string) $range->start(),
-                'endTime' => (string) $range->end(),
-            ])
-        );
+        return $businessHours->flatMap(fn (
+            OpeningHoursForDay $hoursForDay,
+            string $day,
+        ) => $hoursForDay->map(fn (TimeRange $range) => [
+            'daysOfWeek' => [Day::fromName($day)->toISO()],
+            'startTime' => (string) $range->start(),
+            'endTime' => (string) $range->end(),
+        ]));
     }
 
     /**
@@ -222,7 +228,7 @@ abstract class Calendar extends Widget implements HasActions, HasForms
     /** @return array{slotMinTime: string, slotMaxTime: string}|array<empty> */
     protected function slotOptions(): array
     {
-        if (! $businessHours = $this->getBusinessHours()) {
+        if (! ($businessHours = $this->getBusinessHours())) {
             return [];
         }
 
@@ -241,39 +247,32 @@ abstract class Calendar extends Widget implements HasActions, HasForms
 
     protected function success(): void
     {
-        Notification::make()->success()
-            ->title(__('filament-actions::edit.single.notifications.saved.title'))
-            ->send();
+        Notification::make()->success()->title(__('filament-actions::edit.single.notifications.saved.title'))->send();
     }
 
     protected function timeSlot(OpeningHours $businessHours, string $kind): Time
     {
         /** @var Collection<int, Time> $slots */
-        $slots = collect(
-            $businessHours->flatMap(
-                fn (OpeningHoursForDay $hoursForDay) => $hoursForDay->map(function (TimeRange $range) use ($kind) {
-                    return match ($kind) {
-                        'min' => $range->start(),
-                        'max' => $range->end(),
-                        default => throw new InvalidArgumentException(sprintf('Invalid slot kind: %s', $kind))
-                    };
-                })
-            )
-        );
+        $slots = collect($businessHours->flatMap(fn (OpeningHoursForDay $hoursForDay) => $hoursForDay->map(function (TimeRange $range) use (
+            $kind,
+        ) {
+            return match ($kind) {
+                'min' => $range->start(),
+                'max' => $range->end(),
+                default => throw new InvalidArgumentException(sprintf('Invalid slot kind: %s', $kind)),
+            };
+        })));
 
         /** @var Time $slot */
-        $slot = $slots->reduce(
-            static function (?Time $result, Time $opening) use ($kind): Time {
-                assert($result instanceof Time);
+        $slot = $slots->reduce(static function (?Time $result, Time $opening) use ($kind): Time {
+            assert($result instanceof Time);
 
-                return match ($kind) {
-                    'min' => $opening->isBefore($result) ? $opening : $result,
-                    'max' => $opening->isAfter($result) ? $opening : $result,
-                    default => throw new InvalidArgumentException(sprintf('Invalid slot kind: %s', $kind))
-                };
-            },
-            $slots[0]
-        );
+            return match ($kind) {
+                'min' => $opening->isBefore($result) ? $opening : $result,
+                'max' => $opening->isAfter($result) ? $opening : $result,
+                default => throw new InvalidArgumentException(sprintf('Invalid slot kind: %s', $kind)),
+            };
+        }, $slots[0]);
 
         return $slot;
     }
