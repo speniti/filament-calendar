@@ -68,15 +68,17 @@ describe('Calendar Component', function () {
     });
 
     it('creates events correctly', function () {
-        Livewire::test(Calendar::class)
+        $testable = Livewire::test(Calendar::class)
             ->call(
                 'create',
                 Carbon::now()->addDay()->format('Y-m-d H:i:s'),
                 Carbon::now()->addDay()->addHour()->format('Y-m-d H:i:s'),
                 false,
-            )
-            ->assertActionMounted(CreateAction::class)
-            ->fillForm(['summary' => 'Test Appointment'])
+            );
+
+        expect($testable)->toHaveActionMounted('create');
+
+        $testable->fillForm(['summary' => 'Test Appointment'])
             ->callMountedAction()
             ->assertHasNoFormErrors();
 
@@ -102,12 +104,14 @@ describe('Calendar Component', function () {
         expect($appointment->start->format('Y-m-d'))
             ->toBe(Carbon::now()->addDays(2)->format('Y-m-d'));
 
-        $testable->call('select', $appointment->ulid)
-            ->assertActionMounted(EditAction::class)
-            ->fillForm([
-                'summary' => 'Updated Appointment',
-                'color' => null,
-            ])
+        $testable->call('select', $appointment->ulid);
+
+        expect($testable)->toHaveActionMounted('edit');
+
+        $testable->fillForm([
+            'summary' => 'Updated Appointment',
+            'color' => null,
+        ])
             ->callMountedAction()
             ->assertHasNoFormErrors();
 
@@ -119,23 +123,27 @@ describe('Calendar Component', function () {
     it('deletes events correctly', function () {
         $appointment = Appointment::factory()->create();
 
-        Livewire::test(Calendar::class)
-            ->call('select', $appointment->ulid)
-            ->assertActionMounted(EditAction::class)
-            ->callAction(DeleteAction::class);
+        $testable = Livewire::test(Calendar::class)
+            ->call('select', $appointment->ulid);
+
+        expect($testable)->toHaveActionMounted('edit');
+
+        // `callAction()` resolves the mounted action stack against the test
+        // harness' tuple-wrapped component state, so mount and call the
+        // delete action with plain Livewire calls instead.
+        $testable->mountAction('delete')
+            ->call('callMountedAction');
 
         assertDatabaseMissing(Appointment::class, ['ulid' => $appointment->ulid]);
     });
 
     it('selects events correctly', function () {
         $appointment = Appointment::factory()->create();
-        $result = Livewire::test(Calendar::class)
-            ->call('select', $appointment->ulid)
-            ->assertActionMounted('edit');
 
-        // Verify the method doesn't throw an exception;
-        // the actual action dispatch depends on the implementation.
-        expect($result)->not->toBeNull();
+        $result = Livewire::test(Calendar::class)
+            ->call('select', $appointment->ulid);
+
+        expect($result)->toHaveActionMounted('edit');
 
         $result = Livewire::test(
             new class extends Calendar
@@ -149,10 +157,9 @@ describe('Calendar Component', function () {
                 }
             },
         )
-            ->call('select', $appointment->ulid)
-            ->assertActionMounted('view');
+            ->call('select', $appointment->ulid);
 
-        expect($result)->not->toBeNull();
+        expect($result)->toHaveActionMounted('view');
     });
 
     it('computes appointment start time correctly', function () {
