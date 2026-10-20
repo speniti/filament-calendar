@@ -10,6 +10,7 @@ export default {
       true,
       { ignoreAtRules: ['tailwind', 'apply', 'layer', 'config'] },
     ],
+    'at-rule-prelude-no-invalid': [true, { ignoreAtRules: ['apply'] }],
     'selector-class-pattern': ['', {}],
   },
 };
